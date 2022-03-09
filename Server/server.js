@@ -1,35 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const ytdl = require('ytdl-core');
-
 const app = express();
 
 app.use(cors());
 
 app.listen(4000, () => {
-    console.log('Server is listening At port 4000');
+    console.log('Server Works !!! At port 4000');
 });
 
-app.get('/downloadmp4', async (req, res, next) => {
-	try {
-		let url = req.query.url;
-		if(!ytdl.validateURL(url)) {
-			return res.sendStatus(400);
-		}
-		let title = 'video';
+app.get('/download', (req,res) => {
 
-		await ytdl.getBasicInfo(url, {
-			format: 'mp4'
-		}, (err, info) => {
-			title = info.player_response.videoDetails.title.replace(/[^\x00-\x7F]/g, "");
-		});
+var URL = req.query.URL;
 
-		res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
-		ytdl(url, {
-			format: 'mp4',
-		}).pipe(res);
+res.header('Content-Disposition', 'attachment; filename="video.mp4"');
 
-	} catch (err) {
-		console.error(err);
-	}
+ytdl(URL, {
+    format: 'mp4'
+    }).pipe(res);
+	
 });
