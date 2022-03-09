@@ -10,12 +10,26 @@ app.listen(4000, () => {
     console.log('Server is listening At port 4000');
 });
 
-app.get('/download', (req,res) => {
-    var URL = req.query.URL;
+app.get('/downloadmp4', async (req, res, next) => {
+	try {
+		let url = req.query.url;
+		if(!ytdl.validateURL(url)) {
+			return res.sendStatus(400);
+		}
+		let title = 'video';
 
-    res.header('Content-Disposition', 'attachment; filename="video.mp4"');
-    
-    ytdl(URL, {
-        format: 'mp4'
-        }).pipe(res);
-    });
+		await ytdl.getBasicInfo(url, {
+			format: 'mp4'
+		}, (err, info) => {
+			title = info.player_response.videoDetails.title.replace(/[^\x00-\x7F]/g, "");
+		});
+
+		res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
+		ytdl(url, {
+			format: 'mp4',
+		}).pipe(res);
+
+	} catch (err) {
+		console.error(err);
+	}
+});
